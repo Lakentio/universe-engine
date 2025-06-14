@@ -18,7 +18,7 @@ import pygame
 # ────────────────────────────────────────
 WIDTH, HEIGHT = 800, 600
 FOV_DEG = 90
-CHUNK_SIZE = 32          # Tamanho de um chunk em unidades de mundo
+CHUNK_SIZE = 32         # Tamanho de um chunk em unidades de mundo
 CHUNK_RADIUS = 2         # Quantos chunks carregar ao redor do jogador
 STARS_PER_CHUNK = (6, 18)  # min, max
 MOVE_SPEED = 10.0        # unidades por segundo
@@ -76,6 +76,8 @@ def generate_chunk(cx: int, cy: int, cz: int):
 last_player_chunk = None  # type: tuple[int, int, int] | None
 visible_stars: list[tuple[float, float, float, float]] = []
 
+selected_star = None  # Armazena a estrela atualmente selecionada
+
 # ────────────────────────────────────────
 # Projeção 3D simples (space‑to‑screen)
 # ────────────────────────────────────────
@@ -132,11 +134,37 @@ def update_visible_stars(cam_pos):
                 new_visible.extend(stars_cache[key])
     visible_stars = new_visible
 
+def draw_cursor():
+    """Desenha um cursor visível no centro da tela."""
+    mx, my = pygame.mouse.get_pos()
+    pygame.draw.circle(screen, (0, 255, 0), (mx, my), 5)
+
+def draw_arrow(pos):
+    """Desenha uma seta abaixo da posição especificada, apontando para cima."""
+    pygame.draw.line(screen, (255, 0, 0), (pos[0], pos[1] + 10), (pos[0], pos[1] + 20), 2)
+    pygame.draw.polygon(screen, (255, 0, 0), [(pos[0], pos[1] + 10), (pos[0] - 5, pos[1] + 15), (pos[0] + 5, pos[1] + 15)])
+
+def draw_star_info(star):
+    """Exibe informações da estrela selecionada em uma janela."""
+    info_surface = pygame.Surface((200, 100))
+    info_surface.fill((30, 30, 30))
+    pygame.draw.rect(info_surface, (255, 255, 255), info_surface.get_rect(), 1)
+    font = pygame.font.SysFont("monospace", 14)
+    lines = [
+        f"Pos: {star[0]:.1f}, {star[1]:.1f}, {star[2]:.1f}",
+        f"Tamanho: {star[3]:.2f}"
+    ]
+    for i, line in enumerate(lines):
+        text_surface = font.render(line, True, (255, 255, 255))
+        info_surface.blit(text_surface, (10, 10 + i * 20))
+    screen.blit(info_surface, (WIDTH - 210, 10))
+
 # ────────────────────────────────────────
 # Loop principal
 # ────────────────────────────────────────
 
 def main():
+    global selected_star  # Adiciona global para acessar a variável corretamente
     cam_pos = [0.0, 0.0, -10.0]
     cam_rot = [0.0, 0.0]  # pitch, yaw
 
@@ -154,6 +182,13 @@ def main():
             elif event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
                 pygame.quit()
                 sys.exit()
+            elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:  # Clique esquerdo
+                mx, my = pygame.mouse.get_pos()
+                for star in visible_stars:
+                    screen_pos = world_to_screen(*star[:3], cam_pos, cam_rot)
+                    if screen_pos and math.hypot(mx - screen_pos[0], my - screen_pos[1]) < 10:
+                        selected_star = star
+                        break
 
         # ───── Input teclado ─────
         keys = pygame.key.get_pressed()
@@ -170,7 +205,7 @@ def main():
         # ───── Input mouse ─────
         mx, my = pygame.mouse.get_rel()
         cam_rot[1] += mx * MOUSE_SENS
-        cam_rot[0] += my * MOUSE_SENS
+        cam_rot[0] -= my * MOUSE_SENS  # Inverte o eixo vertical
         cam_rot[0] = max(-math.pi/2 + 0.01, min(math.pi/2 - 0.01, cam_rot[0]))
 
         # ───── Atualiza estrelas visíveis ─────
@@ -181,6 +216,15 @@ def main():
             screen_pos = world_to_screen(sx, sy, sz, cam_pos, cam_rot)
             if screen_pos:
                 pygame.draw.circle(screen, (255, 255, 255), screen_pos, max(1, int(size)))
+                if selected_star and (sx, sy, sz, size) == selected_star:
+                    draw_arrow(screen_pos)
+
+        # Desenha o cursor visível
+        draw_cursor()
+
+        # Exibe informações da estrela selecionada
+        if selected_star:
+            draw_star_info(selected_star)
 
         # HUD mínimo
         draw_text(f"Pos: {cam_pos[0]:.1f}, {cam_pos[1]:.1f}, {cam_pos[2]:.1f}", (10, 10))
