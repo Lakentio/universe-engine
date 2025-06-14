@@ -52,8 +52,14 @@ def coord_seed(*coords: int) -> int:
     return int.from_bytes(hashlib.sha256(key).digest()[:8], "big")
 
 # Cache de chunks → lista de estrelas
-# Cada estrela: (x, y, z, tamanho)
-stars_cache: dict[tuple[int, int, int], list[tuple[float, float, float, float]]] = {}
+# Cada estrela: (x, y, z, tamanho, nome)
+stars_cache: dict[tuple[int, int, int], list[tuple[float, float, float, float, str]]] = {}
+
+def generate_star_name(rng: random.Random) -> str:
+    """Gera um nome aleatório único para uma estrela."""
+    letters = ''.join(rng.choices("ABCDEFGHIJKLMNOPQRSTUVWXYZ", k=3))
+    numbers = rng.randint(1000, 9999)
+    return f"{letters}-{numbers}"
 
 def generate_chunk(cx: int, cy: int, cz: int):
     """Cria estrelas para um chunk dado (coordenadas de chunk, não de mundo)."""
@@ -66,15 +72,17 @@ def generate_chunk(cx: int, cy: int, cz: int):
         ly = rng.uniform(0, CHUNK_SIZE)
         lz = rng.uniform(0, CHUNK_SIZE)
         size = rng.random() * 1.5 + 0.5  # brilho/tamanho
+        name = generate_star_name(rng)  # Nome aleatório único
         # Converte para coordenadas absolutas
         stars.append((cx * CHUNK_SIZE + lx,
                       cy * CHUNK_SIZE + ly,
                       cz * CHUNK_SIZE + lz,
-                      size))
+                      size,
+                      name))  # Adiciona o nome à estrela
     return stars
 
 last_player_chunk = None  # type: tuple[int, int, int] | None
-visible_stars: list[tuple[float, float, float, float]] = []
+visible_stars: list[tuple[float, float, float, float, str]] = []
 
 selected_star = None  # Armazena a estrela atualmente selecionada
 
@@ -146,11 +154,12 @@ def draw_arrow(pos):
 
 def draw_star_info(star):
     """Exibe informações da estrela selecionada em uma janela."""
-    info_surface = pygame.Surface((200, 100))
+    info_surface = pygame.Surface((200, 120))
     info_surface.fill((30, 30, 30))
     pygame.draw.rect(info_surface, (255, 255, 255), info_surface.get_rect(), 1)
     font = pygame.font.SysFont("monospace", 14)
     lines = [
+        f"Nome: {star[4]}",
         f"Pos: {star[0]:.1f}, {star[1]:.1f}, {star[2]:.1f}",
         f"Tamanho: {star[3]:.2f}"
     ]
@@ -212,11 +221,11 @@ def main():
         update_visible_stars(cam_pos)
 
         # ───── Renderiza estrelas ─────
-        for sx, sy, sz, size in visible_stars:
+        for sx, sy, sz, size, name in visible_stars:
             screen_pos = world_to_screen(sx, sy, sz, cam_pos, cam_rot)
             if screen_pos:
                 pygame.draw.circle(screen, (255, 255, 255), screen_pos, max(1, int(size)))
-                if selected_star and (sx, sy, sz, size) == selected_star:
+                if selected_star and (sx, sy, sz, size, name) == selected_star:
                     draw_arrow(screen_pos)
 
         # Desenha o cursor visível
