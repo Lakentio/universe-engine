@@ -35,9 +35,9 @@ pygame.display.set_caption("Procedural Space Explorer (low‑end edition)")
 clock = pygame.time.Clock()
 font = pygame.font.SysFont("monospace", 14)
 
-# Ativa modo mouse relativo para capturar movimento contínuo
-pygame.event.set_grab(True)
-pygame.mouse.set_visible(False)
+# Atualiza inicialização do mouse
+pygame.event.set_grab(False)  # Desativa captura do mouse
+pygame.mouse.set_visible(True)  # Torna o cursor visível
 
 # Pré‑cálculo de fator de projeção
 SCALE = WIDTH / (2 * math.tan(math.radians(FOV_DEG / 2)))
@@ -168,11 +168,25 @@ def draw_star_info(star):
         info_surface.blit(text_surface, (10, 10 + i * 20))
     screen.blit(info_surface, (WIDTH - 210, 10))
 
+def handle_mouse_movement():
+    """Controla o movimento da câmera com o mouse."""
+    global cam_rot  # Certifica-se de que cam_rot seja acessível
+    mx, my = pygame.mouse.get_pos()
+    center_x, center_y = WIDTH // 2, HEIGHT // 2
+    dx, dy = mx - center_x, my - center_y
+
+    if dx or dy:  # Se o mouse se mover
+        cam_rot[1] += dx * MOUSE_SENS
+        cam_rot[0] -= dy * MOUSE_SENS  # Inverte o eixo vertical
+        cam_rot[0] = max(-math.pi/2 + 0.01, min(math.pi/2 - 0.01, cam_rot[0]))
+        pygame.mouse.set_pos(center_x, center_y)  # Reposiciona o mouse no centro
+
 # ────────────────────────────────────────
 # Loop principal
 # ────────────────────────────────────────
 
 def main():
+    global cam_rot  # Certifica-se de que cam_rot seja acessível
     global selected_star  # Adiciona global para acessar a variável corretamente
     cam_pos = [0.0, 0.0, -10.0]
     cam_rot = [0.0, 0.0]  # pitch, yaw
@@ -212,10 +226,7 @@ def main():
         cam_pos[1] += vertical * MOVE_SPEED * dt
 
         # ───── Input mouse ─────
-        mx, my = pygame.mouse.get_rel()
-        cam_rot[1] += mx * MOUSE_SENS
-        cam_rot[0] -= my * MOUSE_SENS  # Inverte o eixo vertical
-        cam_rot[0] = max(-math.pi/2 + 0.01, min(math.pi/2 - 0.01, cam_rot[0]))
+        handle_mouse_movement()
 
         # ───── Atualiza estrelas visíveis ─────
         update_visible_stars(cam_pos)
