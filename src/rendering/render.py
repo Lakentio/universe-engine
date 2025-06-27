@@ -1,6 +1,6 @@
 import pygame
 import math
-from config import WIDTH, HEIGHT, FOV_DEG
+from utils.config import WIDTH, HEIGHT, FOV_DEG
 
 SCALE = WIDTH / (2 * math.tan(math.radians(FOV_DEG / 2)))
 

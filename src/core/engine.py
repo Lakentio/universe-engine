@@ -2,7 +2,7 @@ import pygame
 import math
 import hashlib
 import random
-from config import WIDTH, HEIGHT, GLOBAL_SEED, CHUNK_SIZE, CHUNK_RADIUS, STARS_PER_CHUNK, MOUSE_SENS
+from utils.config import WIDTH, HEIGHT, GLOBAL_SEED, CHUNK_SIZE, CHUNK_RADIUS, STARS_PER_CHUNK, MOUSE_SENS
 
 stars_cache = {}
 

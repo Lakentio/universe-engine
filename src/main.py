@@ -1,6 +1,6 @@
-from engine import initialize_pygame, update_visible_stars, handle_mouse_movement
-from render import draw_cursor, draw_arrow, draw_star_info, draw_text, world_to_screen
-from config import WIDTH, HEIGHT, TARGET_FPS, MOVE_SPEED
+from core.engine import initialize_pygame, update_visible_stars, handle_mouse_movement
+from rendering.render import draw_cursor, draw_arrow, draw_star_info, draw_text, world_to_screen
+from utils.config import WIDTH, HEIGHT, TARGET_FPS, MOVE_SPEED
 import pygame
 import sys
 import math
