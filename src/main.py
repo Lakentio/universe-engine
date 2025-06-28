@@ -1,6 +1,6 @@
-from core.engine import initialize_pygame, update_visible_stars, handle_mouse_movement
+from core.engine import initialize_pygame, update_visible_stars, handle_mouse_movement, get_universe_info
 from rendering.render import draw_cursor, draw_arrow, draw_star_info, draw_text, world_to_screen
-from utils.config import WIDTH, HEIGHT, TARGET_FPS, MOVE_SPEED
+import utils.config
 import pygame
 import sys
 import math
@@ -14,7 +14,7 @@ def main():
     update_visible_stars(cam_pos)
 
     while True:
-        dt = clock.tick(TARGET_FPS) / 1000.0
+        dt = clock.tick(utils.config.TARGET_FPS) / 1000.0
         screen.fill((0, 0, 0))
 
         # Eventos
@@ -40,9 +40,9 @@ def main():
         vertical = keys[pygame.K_e] - keys[pygame.K_q]
 
         sin_y, cos_y = math.sin(cam_rot[1]), math.cos(cam_rot[1])
-        cam_pos[0] += (strafe * cos_y + forward * sin_y) * MOVE_SPEED * dt
-        cam_pos[2] += (forward * cos_y - strafe * sin_y) * MOVE_SPEED * dt
-        cam_pos[1] += vertical * MOVE_SPEED * dt
+        cam_pos[0] += (strafe * cos_y + forward * sin_y) * utils.config.MOVE_SPEED * dt
+        cam_pos[2] += (forward * cos_y - strafe * sin_y) * utils.config.MOVE_SPEED * dt
+        cam_pos[1] += vertical * utils.config.MOVE_SPEED * dt
 
         # Input mouse
         handle_mouse_movement(cam_rot)
@@ -68,6 +68,13 @@ def main():
         # HUD mínimo
         draw_text(screen, f"Pos: {cam_pos[0]:.1f}, {cam_pos[1]:.1f}, {cam_pos[2]:.1f}", (10, 10))
         draw_text(screen, f"FPS: {clock.get_fps():.1f}", (10, 28))
+        
+        # Informações da seed
+        universe_info = get_universe_info()
+        seed_text = f"Seed: {universe_info['seed'][:20]}{'...' if len(universe_info['seed']) > 20 else ''}"
+        draw_text(screen, seed_text, (10, 46))
+        if universe_info['is_custom']:
+            draw_text(screen, "Seed Personalizada", (10, 64), color=(0, 255, 0))
 
         pygame.display.flip()
 

@@ -13,6 +13,7 @@ O Universe Engine é um motor 3D simples que gera um universo procedural infinit
 - Sistema de chunks para otimização de performance
 - Interface simples e intuitiva
 - Seleção de estrelas com informações detalhadas
+- **Sistema de seeds personalizadas para consistência**
 
 ## Controles
 
@@ -37,7 +38,40 @@ pip install -r requirements.txt
 
 3. Execute o jogo:
 ```bash
-python src/main.py
+python run.py
+```
+
+## Seeds Personalizadas
+
+O Universe Engine agora suporta seeds personalizadas para garantir consistência na geração do universo. A mesma seed sempre gerará o mesmo universo.
+
+### Uso de Seeds
+
+```bash
+# Usar seed padrão
+python run.py
+
+# Usar seed personalizada
+python run.py --seed "meu-universo-123"
+
+# Ver seeds de exemplo
+python run.py --list-seeds
+```
+
+### Seeds de Exemplo
+
+- `meu-universo-123`
+- `galaxia-andromeda`
+- `sistema-solar-2024`
+- `nebulosa-vermelha`
+- `cluster-estelar`
+
+### Teste de Consistência
+
+Para verificar se as seeds estão funcionando corretamente:
+
+```bash
+python test_seed_consistency.py
 ```
 
 ## Estrutura do Projeto
@@ -60,6 +94,8 @@ universe-engine/
 │   ├── tests/              # Testes (futuro)
 │   ├── requirements.txt    # Dependências Python
 │   ├── .gitignore         # Arquivos ignorados pelo Git
+│   ├── run.py             # Script de execução com suporte a seeds
+│   ├── test_seed_consistency.py  # Teste de consistência
 │   └── README.md          # Este arquivo
 ```
 
@@ -74,7 +110,9 @@ As configurações do jogo podem ser alteradas no arquivo `src/utils/config.py`:
 - `STARS_PER_CHUNK`: Número de estrelas por chunk
 - `MOVE_SPEED`: Velocidade de movimento
 - `MOUSE_SENS`: Sensibilidade do mouse
-- `GLOBAL_SEED`: Seed global para geração procedural
+- `GLOBAL_SEED`: Seed padrão para geração procedural
+- `USE_CUSTOM_SEED`: Define se deve usar seed personalizada
+- `CUSTOM_SEED`: Seed personalizada do usuário
 
 ## Desenvolvimento
 

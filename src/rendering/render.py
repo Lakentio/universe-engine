@@ -1,8 +1,8 @@
 import pygame
 import math
-from utils.config import WIDTH, HEIGHT, FOV_DEG
+import utils.config
 
-SCALE = WIDTH / (2 * math.tan(math.radians(FOV_DEG / 2)))
+SCALE = utils.config.WIDTH / (2 * math.tan(math.radians(utils.config.FOV_DEG / 2)))
 
 def world_to_screen(px, py, pz, cam_pos, cam_rot):
     """Transforma ponto de mundo em coordenadas 2D de tela."""
@@ -15,9 +15,9 @@ def world_to_screen(px, py, pz, cam_pos, cam_rot):
     if z <= 0:
         return None
 
-    sx = int(WIDTH / 2 + (x / z) * SCALE)
-    sy = int(HEIGHT / 2 - (y / z) * SCALE)
-    if 0 <= sx < WIDTH and 0 <= sy < HEIGHT:
+    sx = int(utils.config.WIDTH / 2 + (x / z) * SCALE)
+    sy = int(utils.config.HEIGHT / 2 - (y / z) * SCALE)
+    if 0 <= sx < utils.config.WIDTH and 0 <= sy < utils.config.HEIGHT:
         return (sx, sy)
     return None
 
@@ -45,9 +45,9 @@ def draw_star_info(screen, star):
     for i, line in enumerate(lines):
         text_surface = font.render(line, True, (255, 255, 255))
         info_surface.blit(text_surface, (10, 10 + i * 20))
-    screen.blit(info_surface, (WIDTH - 210, 10))
+    screen.blit(info_surface, (utils.config.WIDTH - 210, 10))
 
-def draw_text(screen, text, pos):
+def draw_text(screen, text, pos, color=(255, 255, 255)):
     """Desenha texto na tela."""
-    surface = pygame.font.SysFont("monospace", 14).render(text, True, (255, 255, 255))
+    surface = pygame.font.SysFont("monospace", 14).render(text, True, color)
     screen.blit(surface, pos)
