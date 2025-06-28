@@ -3,6 +3,7 @@ import math
 import hashlib
 import random
 import utils.config
+from typing import List, Tuple, Optional
 
 stars_cache = {}
 
@@ -28,7 +29,7 @@ def initialize_pygame():
     """Inicializa o Pygame e retorna a tela e o relógio."""
     pygame.init()
     screen = pygame.display.set_mode((utils.config.WIDTH, utils.config.HEIGHT))
-    pygame.display.set_caption("Procedural Space Explorer (low‑end edition)")
+    pygame.display.set_caption("Universe Engine - Procedural Space Explorer")
     clock = pygame.time.Clock()
     return screen, clock
 
@@ -52,20 +53,32 @@ def generate_chunk(cx: int, cy: int, cz: int):
         stars.append((cx * utils.config.CHUNK_SIZE + lx, cy * utils.config.CHUNK_SIZE + ly, cz * utils.config.CHUNK_SIZE + lz, size, name))
     return stars
 
-def update_visible_stars(cam_pos):
-    """Atualiza lista de estrelas visíveis com base na posição da câmera."""
+def update_visible_stars(cam_pos: List[float], cam_rot: List[float] = None) -> List[Tuple]:
+    """Atualiza lista de estrelas visíveis - VERSÃO OTIMIZADA."""
     pcx = math.floor(cam_pos[0] / utils.config.CHUNK_SIZE)
     pcy = math.floor(cam_pos[1] / utils.config.CHUNK_SIZE)
     pcz = math.floor(cam_pos[2] / utils.config.CHUNK_SIZE)
+    
     visible_stars = []
+    chunks_loaded = 0
+    
+    # Loop simples e direto
     for cx in range(pcx - utils.config.CHUNK_RADIUS, pcx + utils.config.CHUNK_RADIUS + 1):
         for cy in range(pcy - utils.config.CHUNK_RADIUS, pcy + utils.config.CHUNK_RADIUS + 1):
             for cz in range(pcz - utils.config.CHUNK_RADIUS, pcz + utils.config.CHUNK_RADIUS + 1):
                 key = (cx, cy, cz)
                 if key not in stars_cache:
                     stars_cache[key] = generate_chunk(cx, cy, cz)
+                    chunks_loaded += 1
+                
+                # Adiciona todas as estrelas do chunk
                 visible_stars.extend(stars_cache[key])
-    return visible_stars
+    
+    # Limite simples de estrelas
+    if len(visible_stars) > utils.config.MAX_VISIBLE_STARS:
+        visible_stars = visible_stars[:utils.config.MAX_VISIBLE_STARS]
+    
+    return visible_stars, chunks_loaded
 
 def handle_mouse_movement(cam_rot):
     """Controla o movimento da câmera com o mouse."""
@@ -100,4 +113,12 @@ def get_universe_info():
         'seed': active_seed,
         'is_custom': is_custom,
         'cache_size': len(stars_cache)
+    }
+
+def get_performance_stats():
+    """Retorna estatísticas de performance."""
+    return {
+        'cache_size': len(stars_cache),
+        'total_stars': sum(len(stars) for stars in stars_cache.values()),
+        'memory_usage_mb': len(stars_cache) * 0.1  # Estimativa aproximada
     }
