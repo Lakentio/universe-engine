@@ -37,13 +37,13 @@ if __name__ == "__main__":
     
     if args.seed:
         # Importa e configura a seed personalizada
-        from utils.config import USE_CUSTOM_SEED, CUSTOM_SEED
-        import utils.config
+        from src.utils.config import USE_CUSTOM_SEED, CUSTOM_SEED
+        import src.utils.config
         
         # Atualiza a configuração com a seed fornecida
-        utils.config.USE_CUSTOM_SEED = True
-        utils.config.CUSTOM_SEED = args.seed
+        src.utils.config.USE_CUSTOM_SEED = True
+        src.utils.config.CUSTOM_SEED = args.seed
         print(f"Usando seed personalizada: '{args.seed}'")
     
-    from main import main
+    from src.main import main
     main() 

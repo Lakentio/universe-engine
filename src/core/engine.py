@@ -3,9 +3,14 @@ import math
 import hashlib
 import random
 import utils.config
+import utils.logger
+
+logger = utils.logger.get_logger()
 from typing import List, Tuple, Optional
 
 stars_cache = {}
+# Conjunto de chunks atualmente considerados "visíveis" (com histerese)
+visible_chunk_keys = set()
 
 def get_active_seed():
     """Retorna a seed ativa baseada na configuração."""
@@ -61,22 +66,59 @@ def update_visible_stars(cam_pos: List[float], cam_rot: List[float] = None) -> L
     
     visible_stars = []
     chunks_loaded = 0
-    
-    # Loop simples e direto
-    for cx in range(pcx - utils.config.CHUNK_RADIUS, pcx + utils.config.CHUNK_RADIUS + 1):
-        for cy in range(pcy - utils.config.CHUNK_RADIUS, pcy + utils.config.CHUNK_RADIUS + 1):
-            for cz in range(pcz - utils.config.CHUNK_RADIUS, pcz + utils.config.CHUNK_RADIUS + 1):
+
+    # Pré-carrega uma borda extra de chunks (hysteresis) para evitar flicker
+    load_radius = utils.config.CHUNK_RADIUS + 1
+    for cx in range(pcx - load_radius, pcx + load_radius + 1):
+        for cy in range(pcy - load_radius, pcy + load_radius + 1):
+            for cz in range(pcz - load_radius, pcz + load_radius + 1):
                 key = (cx, cy, cz)
                 if key not in stars_cache:
                     stars_cache[key] = generate_chunk(cx, cy, cz)
                     chunks_loaded += 1
-                
-                # Adiciona todas as estrelas do chunk
-                visible_stars.extend(stars_cache[key])
+                    logger.debug(f"Generated chunk {key} with {len(stars_cache[key])} stars (cache_size={len(stars_cache)})")
+
+    # Atualiza conjunto de chunks visíveis com histerese:
+    # - adiciona todos os chunks dentro do raio normal
+    # - só remove chunks que estejam além de CHUNK_RADIUS + 1
+    global visible_chunk_keys
+    desired_keys = set()
+    for cx in range(pcx - utils.config.CHUNK_RADIUS, pcx + utils.config.CHUNK_RADIUS + 1):
+        for cy in range(pcy - utils.config.CHUNK_RADIUS, pcy + utils.config.CHUNK_RADIUS + 1):
+            for cz in range(pcz - utils.config.CHUNK_RADIUS, pcz + utils.config.CHUNK_RADIUS + 1):
+                desired_keys.add((cx, cy, cz))
+
+    # Adiciona os novos desejados (e loga quais foram adicionados)
+    new_added = desired_keys - visible_chunk_keys
+    if new_added:
+        logger.debug(f"Adding visible chunk keys: {sorted(list(new_added))}")
+    visible_chunk_keys.update(desired_keys)
+
+    # Remove apenas os que estão muito distantes (fora do raio + 1)
+    to_remove = []
+    for key in visible_chunk_keys:
+        kx, ky, kz = key
+        if abs(kx - pcx) > utils.config.CHUNK_RADIUS + 1 or abs(ky - pcy) > utils.config.CHUNK_RADIUS + 1 or abs(kz - pcz) > utils.config.CHUNK_RADIUS + 1:
+            to_remove.append(key)
+    for key in to_remove:
+        visible_chunk_keys.discard(key)
+        logger.debug(f"Removed visible chunk key (out of hysteresis): {key}")
+
+    # Coleta estrelas de todos os chunks que estamos mantendo como visíveis
+    for key in visible_chunk_keys:
+        if key in stars_cache:
+            visible_stars.extend(stars_cache[key])
+
+    logger.debug(f"Visible chunks: {len(visible_chunk_keys)}, visible_stars_count={len(visible_stars)}, chunks_loaded_this_call={chunks_loaded}")
     
-    # Limite simples de estrelas
+    # Prioriza as estrelas mais próximas da câmera e limita a MAX_VISIBLE_STARS
     if len(visible_stars) > utils.config.MAX_VISIBLE_STARS:
-        visible_stars = visible_stars[:utils.config.MAX_VISIBLE_STARS]
+        camx, camy, camz = cam_pos[0], cam_pos[1], cam_pos[2]
+        star_dist_pairs = [((s[0]-camx)**2 + (s[1]-camy)**2 + (s[2]-camz)**2, s) for s in visible_stars]
+        star_dist_pairs.sort(key=lambda x: x[0])
+        trimmed = len(visible_stars) - utils.config.MAX_VISIBLE_STARS
+        visible_stars = [s for _, s in star_dist_pairs[:utils.config.MAX_VISIBLE_STARS]]
+        logger.debug(f"Trimmed {trimmed} stars to MAX_VISIBLE_STARS={utils.config.MAX_VISIBLE_STARS} (kept closest)")
     
     return visible_stars, chunks_loaded
 
