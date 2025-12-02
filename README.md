@@ -48,27 +48,6 @@ python run.py
 
 The Universe Engine supports custom seeds to ensure consistency in universe generation. The same seed will always generate the same universe.
 
-### Use of Seeds
-
-```bash
-# use default seed
-python run.py
-
-# Use personalized seeds
-python run.py --seed "meu-universo-123"
-
-# view example seeds
-python run.py --list-seeds
-```
-
-### Example Seeds
-
-- `meu-universo-123`
-- `galaxia-andromeda`
-- `sistema-solar-2024`
-- `nebulosa-vermelha`
-- `cluster-estelar`
-
 ## Hardware
 
 I tested the program with the default settings in a machine with I3 3220, 8GB Ram and no dedicated graphics card, and i got 58-62 FPS. 
