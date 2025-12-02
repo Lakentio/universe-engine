@@ -124,15 +124,15 @@ Game settings can be changed in the `src/utils/config.py` file:
 - `UI_FONT_SIZE`: Font size
 - `UI_PANEL_ALPHA`: Panel transparency
 
-## Desenvolvimento
+## Development
 
-Para contribuir com o projeto:
+To contribute to the project(please do this, I am a horrible dev, this project contain a lot of IA code):
 
-1. Faça um fork do repositório
-2. Crie uma branch para sua feature
-3. Faça commit das suas mudanças
-4. Abra um Pull Request
+1. Fork the repository
+2. Create a branch for your feature
+3. Commit your changes
+4. Open a Pull Request
 
-## Licença
+## License
 
-Este projeto está sob a licença MIT. Veja o arquivo LICENSE para mais detalhes. 
+This project is under the MIT License. See the LICENSE file for more details.
