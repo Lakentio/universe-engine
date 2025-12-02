@@ -1,4 +1,4 @@
-from core.engine import initialize_pygame, update_visible_stars, handle_mouse_movement, get_universe_info, get_performance_stats
+from core.engine import initialize_pygame, update_visible_stars, handle_mouse_movement, get_universe_info, get_performance_stats, save_game, load_game, list_saves
 from rendering.render import (
     draw_cursor, draw_arrow, draw_star_info, draw_text, world_to_screen,
     draw_gradient_background
@@ -51,6 +51,37 @@ def main():
             elif event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
                 pygame.quit()
                 sys.exit()
+            elif event.type == pygame.KEYDOWN and event.key == pygame.K_F5:
+                # Quick save com timestamp
+                try:
+                    save_name = f"quick_{int(time.time())}"
+                    path = save_game(save_name, cam_pos, cam_rot, selected_star)
+                    logger.info(f"Quick saved -> {path}")
+                except Exception as e:
+                    logger.exception(f"Failed to quick save: {e}")
+            elif event.type == pygame.KEYDOWN and event.key == pygame.K_F9:
+                # Quick load: tenta carregar o save mais recente
+                try:
+                    saves = list_saves()
+                    if saves:
+                        latest = saves[0]['filename']
+                        state = load_game(latest)
+                        if state:
+                            cam_pos = state.get('cam_pos', cam_pos)
+                            cam_rot = state.get('cam_rot', cam_rot)
+                            selected_star = state.get('selected_star', selected_star)
+                            logger.info(f"Quick loaded {latest}")
+                    else:
+                        logger.info("Nenhum save encontrado para carregar.")
+                except Exception as e:
+                    logger.exception(f"Failed to quick load: {e}")
+            elif event.type == pygame.KEYDOWN and event.key == pygame.K_F8:
+                # Lista saves no logger
+                try:
+                    saves = list_saves()
+                    logger.info(f"Available saves ({len(saves)}): {[s['filename'] for s in saves]}")
+                except Exception as e:
+                    logger.exception(f"Failed to list saves: {e}")
             elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:  # Clique esquerdo
                 mx, my = pygame.mouse.get_pos()
                 # Busca em todas as estrelas visíveis para seleção

@@ -4,6 +4,8 @@ import hashlib
 import random
 import utils.config
 import utils.logger
+import utils.save_manager as save_manager
+import time
 
 logger = utils.logger.get_logger()
 from typing import List, Tuple, Optional
@@ -156,6 +158,35 @@ def get_universe_info():
         'is_custom': is_custom,
         'cache_size': len(stars_cache)
     }
+
+def save_game(name: str, cam_pos, cam_rot, selected_star=None) -> str:
+    """Salva o estado atual do jogo com o nome dado. Retorna o caminho do arquivo salvo."""
+    state = {
+        'cam_pos': list(cam_pos),
+        'cam_rot': list(cam_rot),
+        'selected_star': selected_star,
+        'seed': get_active_seed(),
+        'timestamp': time.time()
+    }
+    path = save_manager.save_state(name, state)
+    logger.info(f"Saved game '{name}' -> {path}")
+    return path
+
+def load_game(name_or_filename: str):
+    """Carrega um save e retorna o dicionário de estado, ou None se não encontrado."""
+    state = save_manager.load_state(name_or_filename)
+    if not state:
+        logger.warning(f"Save not found: {name_or_filename}")
+        return None
+    # Aplica seed se presente
+    if 'seed' in state and state.get('seed'):
+        set_universe_seed(state.get('seed'))
+    logger.info(f"Loaded game '{name_or_filename}'")
+    return state
+
+def list_saves():
+    """Retorna metadados dos saves disponíveis."""
+    return save_manager.list_saves()
 
 def get_performance_stats():
     """Retorna estatísticas de performance."""

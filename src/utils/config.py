@@ -32,6 +32,6 @@ UI_FONT_SIZE = 14
 UI_PANEL_ALPHA = 180  # Transparência dos painéis (0-255)
 
 # Logging / Debug
-DEBUG_LOG = False  # Habilita logs de depuração para desenvolvimento
+DEBUG_LOG = False # Habilita logs de depuração para desenvolvimento
 LOG_FILE = "universe_debug.log"
 LOG_LEVEL = "DEBUG"  # DEBUG, INFO, WARNING, ERROR

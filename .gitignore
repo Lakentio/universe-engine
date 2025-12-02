@@ -190,3 +190,6 @@ logs/
 *.temp
 temp/
 tmp/ 
+
+# Saves Files
+saves/*
