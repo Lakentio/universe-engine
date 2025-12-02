@@ -19,7 +19,7 @@ LOD_DISTANCE = 500.0  # Alto para não limitar
 STAR_FADE_DISTANCE = 200.0  # Alto para não limitar
 
 # Configurações de UI/HUD (MANTIDAS)
-UI_SCALE = 1.0  # Escala da interface
+UI_SCALE = 3  # Escala da interface
 UI_COLORS = {
     'background': (20, 20, 30),
     'panel': (40, 40, 60),

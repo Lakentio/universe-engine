@@ -44,10 +44,6 @@ pip install -r requirements.txt
 python run.py
 ```
 
-## Seeds Personalized
-
-The Universe Engine supports custom seeds to ensure consistency in universe generation. The same seed will always generate the same universe.
-
 ## Hardware
 
 I tested the program with the default settings in a machine with I3 3220, 8GB Ram and no dedicated graphics card, and i got 58-62 FPS. 
