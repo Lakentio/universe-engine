@@ -1,7 +1,7 @@
 from core.engine import initialize_pygame, update_visible_stars, handle_mouse_movement, get_universe_info, get_performance_stats, save_game, load_game, list_saves
 from rendering.render import (
     draw_cursor, draw_arrow, draw_star_info, draw_text, world_to_screen,
-    draw_gradient_background
+    draw_gradient_background, create_panel_surface
 )
 import utils.config
 import os
@@ -13,18 +13,47 @@ import utils.logger
 
 logger = utils.logger.get_logger()
 
-def main():
+def main(load=None, save_on_start=None, headless=False, fps=None, profile=False):
     cam_pos = [0.0, 0.0, -10.0]
     cam_rot = [0.0, 0.0]  # pitch, yaw
     selected_star = None
+    # Input de save in-game
+    save_input_active = False
+    save_input_text = ""
+    # Fonte para UI de input
+    input_font = None
     frame_times = []  # Para calcular FPS médio
     last_time = time.time()
 
+    # Aplica flags de tempo de execução
+    if fps is not None:
+        utils.config.TARGET_FPS = int(fps)
+    if profile:
+        utils.config.DEBUG_LOG = True
+
     screen, clock = initialize_pygame()
+
+    # inicializa fonte de input após pygame.init
+    input_font = pygame.font.SysFont("monospace", 16, bold=True)
     
+    # Se foi pedido para carregar via CLI, aplica o estado antes de gerar chunks
+    if load:
+        state = load_game(load)
+        if state:
+            cam_pos = state.get('cam_pos', cam_pos)
+            cam_rot = state.get('cam_rot', cam_rot)
+            selected_star = state.get('selected_star', selected_star)
+
     # Inicializa estrelas visíveis
     visible_stars, chunks_loaded = update_visible_stars(cam_pos, cam_rot)
     last_chunk_update = 0.0
+    # Se solicitado via CLI, salva imediatamente com o nome fornecido
+    if save_on_start:
+        try:
+            path = save_game(save_on_start, cam_pos, cam_rot, selected_star)
+            logger.info(f"Saved on start -> {path}")
+        except Exception:
+            logger.exception("Failed to save on start")
     # Simulação automática para reproduzir movimento através de chunks
     AUTO_MOVE = os.getenv('DEBUG_SIM_MOVE', '0') == '1'
     prev_chunk = (math.floor(cam_pos[0] / utils.config.CHUNK_SIZE), math.floor(cam_pos[1] / utils.config.CHUNK_SIZE), math.floor(cam_pos[2] / utils.config.CHUNK_SIZE))
@@ -51,6 +80,31 @@ def main():
             elif event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
                 pygame.quit()
                 sys.exit()
+            # Entrada de texto para salvar
+            if save_input_active:
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_RETURN:
+                        # confirma save
+                        if save_input_text.strip():
+                            try:
+                                path = save_game(save_input_text.strip(), cam_pos, cam_rot, selected_star)
+                                logger.info(f"Saved -> {path}")
+                            except Exception:
+                                logger.exception("Failed to save via input")
+                        save_input_active = False
+                        save_input_text = ""
+                    elif event.key == pygame.K_ESCAPE:
+                        save_input_active = False
+                        save_input_text = ""
+                    elif event.key == pygame.K_BACKSPACE:
+                        save_input_text = save_input_text[:-1]
+                    else:
+                        # usa event.unicode para respeitar layout
+                        ch = getattr(event, 'unicode', '')
+                        if ch and len(ch) == 1:
+                            save_input_text += ch
+                # enquanto em input, ignora os demais handlers
+                continue
             elif event.type == pygame.KEYDOWN and event.key == pygame.K_F5:
                 # Quick save com timestamp
                 try:
@@ -59,6 +113,10 @@ def main():
                     logger.info(f"Quick saved -> {path}")
                 except Exception as e:
                     logger.exception(f"Failed to quick save: {e}")
+            elif event.type == pygame.KEYDOWN and event.key == pygame.K_F6:
+                # Abre input de nome para save
+                save_input_active = True
+                save_input_text = ""
             elif event.type == pygame.KEYDOWN and event.key == pygame.K_F9:
                 # Quick load: tenta carregar o save mais recente
                 try:
@@ -183,6 +241,18 @@ def main():
         # Exibe informações da estrela selecionada (apenas se selecionada)
         if selected_star:
             draw_star_info(screen, selected_star)
+
+        # Se modo de input de save ativo, desenha painel simples
+        if save_input_active:
+            panel_w = 420
+            panel_h = 80
+            panel = create_panel_surface(panel_w, panel_h)
+            prompt = input_font.render("Nome do save:", True, utils.config.UI_COLORS['accent'])
+            panel.blit(prompt, (12, 10))
+            # Texto do usuário
+            txt = input_font.render(save_input_text or "(digite e pressione ENTER)", True, utils.config.UI_COLORS['text'])
+            panel.blit(txt, (12, 38))
+            screen.blit(panel, ((utils.config.WIDTH - panel_w) // 2, (utils.config.HEIGHT - panel_h) // 2))
 
         pygame.display.flip()
 

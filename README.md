@@ -25,6 +25,10 @@ The Universe Engine is an advanced 3D engine that generates an infinite procedur
 - **Mouse**: Camera rotate
 - **Left Click**: Select Star
 - **ESC**: Exit Game
+- **F5**: Quick Save
+- **F9**: Load Latest Save
+- **F8**: List Saves in the logger
+- **F6**: Open a menu to save the state
 
 ## Installation
 
