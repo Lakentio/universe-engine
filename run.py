@@ -13,10 +13,15 @@ def _parse_args():
     parser.add_argument('--save', '-s', help='Save on start with given name')
     parser.add_argument('--fps', type=int, help='Override target FPS')
     parser.add_argument('--profile', action='store_true', help='Enable basic profiling/logging')
+    parser.add_argument("--version", action="version", version="Universe Engine " + __import__('src').version)
+    parser.add_argument("--dev", action="store_true", help="visit the devloper page in github")
     return parser.parse_args()
 
 if __name__ == "__main__":
     args = _parse_args()
+    
+    if args.dev:
+        print("visit the dev page in -> https://github.com/Lakentio")
 
     from src.main import main
 
