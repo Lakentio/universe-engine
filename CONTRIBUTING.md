@@ -1,0 +1,50 @@
+# Contributing
+
+Thank you for wanting to contribute! This file describes simple steps to get started — aimed at junior contributors.
+
+Quick steps:
+
+1. Fork the repository and clone it locally.
+2. Create a branch with a descriptive name, e.g. `feature/xyz` or `fix/bug-small`.
+3. Make small changes and commit frequently.
+4. Run tests and add new tests when possible.
+5. Open a Pull Request explaining what changed and why.
+
+Development environment:
+
+```bash
+git clone <your-fork-url>
+cd universe-engine
+python -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+```
+
+How to run the game locally:
+
+```bash
+python run.py
+```
+
+Run tests (if present):
+
+```bash
+pytest -q
+```
+
+Good first tasks (great for beginners):
+
+- Add docstrings and simple type hints in `src/rendering/render.py`.
+- Improve `src/utils/config.py` with validations and commented defaults.
+- Add simple tests for `src/utils/save_manager.py` (save, list, load).
+- Update `README.md` with usage examples (we started this already).
+
+Style and review tips:
+
+- Keep changes small and focused — this makes review easier.
+- Run the code locally before opening a PR to ensure nothing breaks.
+- Use clear commit messages: `feat: add X` or `fix: correct Y`.
+
+If you need help: open an issue describing what you want to do — a maintainer can guide or assign the task.
+
+Thanks for contributing!

@@ -18,10 +18,10 @@ The Universe Engine is an advanced 3D engine that generates an infinite procedur
 - **Star selection** with detailed information
 - **Distance fade** for realistic visual effect
 
-## Controlls
+## Controls
 
-- **WASD**: Horizontal moviment (front/left/back/right)
-- **QE**: Vertical moviment (down/up)
+- **WASD**: Horizontal movement (front/left/back/right)
+- **QE**: Vertical movement (down/up)
 - **Mouse**: Camera rotate
 - **Left Click**: Select Star
 - **ESC**: Exit Game
@@ -38,19 +38,30 @@ git clone https://github.com/Lakentio/universe-engine.git
 cd universe-engine
 ```
 
-2. install dependencies:
+2. (Optional but recommended) create and activate a virtual environment:
+```bash
+python -m venv .venv
+source .venv/bin/activate
+```
+
+3. Install dependencies:
 ```bash
 pip install -r requirements.txt
 ```
 
-3. Execute game:
+4. Run the game:
 ```bash
 python run.py
 ```
 
+To see the command line options use:
+```bash
+python run.py --help
+```
+
 ## Hardware
 
-I tested the program with the default settings in a machine with I3 3220, 8GB Ram and no dedicated graphics card, and i got 58-62 FPS. 
+I tested the program with the default settings on a machine with I3 3220, 8GB RAM, and no dedicated graphics card, and I got 58-62 FPS. 
 
 ## Project Structure
 
@@ -105,13 +116,19 @@ Game settings can be changed in the `src/utils/config.py` file:
 
 ## Development
 
-To contribute to the project(please do this, I am a horrible dev, this project contain a lot of IA code):
+If you want to contribute (very welcome!):
 
 1. Fork the repository
-2. Create a branch for your feature
-3. Commit your changes
-4. Open a Pull Request
+2. Create a branch for your feature/bugfix
+3. Run local tests and format the code
+4. Open a Pull Request describing the change
+
+Tips for beginners:
+- Look for small files in `src/utils` or documentation improvements.
+- Start by adding docstrings or small unit tests.
+- If you prefer, ask a maintainer to mark an issue as "good first issue".
 
 ## License
 
 This project is under the MIT License. See the LICENSE file for more details.
+

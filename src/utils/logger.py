@@ -3,7 +3,7 @@ import logging.handlers
 import os
 import utils.config as config
 
-# Configura o logger central 'universe'
+# Configure the central 'universe' logger
 logger = logging.getLogger('universe')
 if not logger.handlers:
     level_name = getattr(config, 'LOG_LEVEL', 'DEBUG')

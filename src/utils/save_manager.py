@@ -1,12 +1,12 @@
-"""Módulo simples para gerenciar saves do jogo.
+"""Simple module to manage game saves.
 
-Forma de uso:
-- `save_state(name, state_dict)` -> cria um arquivo JSON em `saves/` com nome seguro e timestamp
-- `list_saves()` -> retorna lista de saves ordenada por data (mais recente primeiro)
-- `load_state(name_or_filename)` -> carrega um save pelo filename completo ou pelo nome (pega o mais recente que combine)
-- `delete_save(filename)` -> remove um save
+Usage:
+- `save_state(name, state_dict)` -> creates a JSON file under `saves/` with a safe name and timestamp
+- `list_saves()` -> returns a list of saves ordered by date (newest first)
+- `load_state(name_or_filename)` -> loads a save by full filename or by name (chooses the most recent match)
+- `delete_save(filename)` -> removes a save file
 
-Os saves armazenam pelo menos: `cam_pos`, `cam_rot`, `selected_star` e `seed`.
+Saved data should contain at least: `cam_pos`, `cam_rot`, `selected_star` and `seed`.
 """
 import os
 import json
@@ -22,12 +22,12 @@ def _ensure_dir():
         os.makedirs(_SAVES_DIR, exist_ok=True)
 
 def _safe_name(name: str) -> str:
-    # Remove caracteres indesejados
+    # Remove unwanted characters
     safe = re.sub(r'[^0-9A-Za-z._-]', '_', name)
     return safe[:64]
 
 def save_state(name: str, state: Dict[str, Any]) -> str:
-    """Salva o dicionário `state` com o `name`. Retorna o caminho do arquivo salvo."""
+    """Save the `state` dictionary under `name`. Returns the saved file path."""
     _ensure_dir()
     safe = _safe_name(name)
     ts = int(time.time())
@@ -38,7 +38,7 @@ def save_state(name: str, state: Dict[str, Any]) -> str:
     return path
 
 def list_saves() -> List[Dict[str, Any]]:
-    """Retorna lista de saves com metadados ordenados do mais recente ao mais antigo."""
+    """Return a list of saves with metadata ordered from newest to oldest."""
     _ensure_dir()
     items = []
     for fn in os.listdir(_SAVES_DIR):
@@ -57,22 +57,22 @@ def list_saves() -> List[Dict[str, Any]]:
     return items
 
 def load_state(name_or_filename: str) -> Optional[Dict[str, Any]]:
-    """Carrega um save. Se `name_or_filename` for um filename existente é usado diretamente.
-    Caso contrário, tenta encontrar saves cujo meta.name ou filename contenha a string e escolhe o mais recente."""
+    """Load a save. If `name_or_filename` is an existing filename it will be used directly.
+    Otherwise, try to find saves whose meta.name or filename contains the string and pick the most recent match."""
     _ensure_dir()
-    # 1) se for caminho/filename exato
+    # 1) if it is an exact path/filename
     candidate = None
     full_path = os.path.join(_SAVES_DIR, name_or_filename)
     if os.path.exists(full_path):
         candidate = full_path
     else:
-        # busca por similaridade na lista de saves
+        # search for similar saves in the list
         matches = []
         for s in list_saves():
             if name_or_filename in s['filename'] or name_or_filename in str(s.get('meta', {}).get('name', '')):
                 matches.append(s)
         if matches:
-            candidate = matches[0]['path']  # mais recente
+            candidate = matches[0]['path']  # most recent
 
     if not candidate:
         return None

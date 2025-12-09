@@ -4,7 +4,7 @@ import sys
 import os
 import argparse
 
-# Adiciona o diretório src ao path do Python
+# Add the 'src' directory to the Python path
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'src'))
 
 def _parse_args():
@@ -14,7 +14,7 @@ def _parse_args():
     parser.add_argument('--fps', type=int, help='Override target FPS')
     parser.add_argument('--profile', action='store_true', help='Enable basic profiling/logging')
     parser.add_argument("--version", action="version", version="Universe Engine " + __import__('src').version)
-    parser.add_argument("--dev", action="store_true", help="visit the devloper page in github")
+    parser.add_argument("--dev", action="store_true", help="open the developer page on GitHub")
     return parser.parse_args()
 
 if __name__ == "__main__":
