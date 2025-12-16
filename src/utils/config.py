@@ -3,10 +3,10 @@ FOV_DEG = 90
 CHUNK_SIZE = 128
 CHUNK_RADIUS = 1
 STARS_PER_CHUNK = (10, 30)
-MOVE_SPEED = 10.0
+MOVE_SPEED = 50.0
 MOUSE_SENS = 0.0025
 GLOBAL_SEED = "lakentio2"  # Default seed - can be changed by user
-TARGET_FPS = 60
+TARGET_FPS = 1000
 
 # Configuration for custom seeds
 USE_CUSTOM_SEED = False  # Whether to use a custom seed
@@ -28,7 +28,7 @@ UI_COLORS = {
     'warning': (255, 150, 100),
     'success': (100, 255, 150)
 }
-UI_FONT_SIZE = 14
+UI_FONT_SIZE = 24
 UI_PANEL_ALPHA = 180  # Panel transparency (0-255)
 
 # Logging / Debug

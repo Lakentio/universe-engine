@@ -61,7 +61,7 @@ python run.py --help
 
 ## Hardware
 
-I tested the program with the default settings on a machine with I3 3220, 8GB RAM, and no dedicated graphics card, and I got 58-62 FPS. 
+I tested the program with the default settings on a machine with I3 3220, 8GB RAM, and no dedicated graphics card, and I got 140-180 FPS, per default the FPS is limited to 60FPS in the ```utils/config.py``` file, but you can change the line ```TARGET_FPS``` and decide your limit.
 
 ## Project Structure
 
